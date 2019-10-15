@@ -108,6 +108,10 @@ function headless_setup_mark_setup_success () {
 function headless_setup_progress_flash () {
   if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
   then
+    if [ ! -f /etc/stage_flash ]
+    then
+	    get_script /etc stage_flash pi-gen-sources/00-teslausb-tweaks/files
+    fi
     /etc/stage_flash $1
   fi
 }
@@ -546,6 +550,12 @@ if [ ! -z ${AP_SSID:+x} ]
 then
   get_script /tmp configure-ap.sh setup/pi
   /tmp/configure-ap.sh
+fi
+
+# ensure there is the correct rc.local file
+if ! grep -q 'telsa' /etc/rc.local
+then
+  get_script /etc rc.local pi-gen-sources/00-teslausb-tweaks/files
 fi
 
 make_root_fs_readonly
